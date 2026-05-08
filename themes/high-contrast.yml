@@ -1,0 +1,31 @@
+name: high-contrast
+foreground: brightwhite
+background: black
+accent: brightyellow
+gutter: brightwhite
+selection: brightmagenta
+statusbar:
+  foreground: black
+  background: brightwhite
+syntax:
+  keyword:        brightyellow
+  builtin:        brightcyan
+  type:           brightcyan
+  literal:        brightred
+  number:         brightred
+  string:         brightgreen
+  regexp:         brightgreen
+  symbol:         brightgreen
+  comment:        brightwhite
+  function:       brightmagenta
+  parameter:      brightwhite
+  variable:       brightwhite
+  tag:            brightyellow
+  tagName:        brightyellow
+  attribute:      brightcyan
+  attr:           brightcyan
+  selectorId:     brightyellow
+  selectorClass:  brightyellow
+  bullet:         brightmagenta
+  addition:       brightgreen
+  deletion:       brightred

@@ -1,0 +1,28 @@
+{
+  "name": "loom",
+  "version": "0.1.0",
+  "description": "TTY-based IDE designed for working alongside an AI coding agent over remote shells.",
+  "type": "module",
+  "bin": {
+    "loom": "bin/loom"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test tests/",
+    "start": "node bin/loom"
+  },
+  "dependencies": {
+    "cli-highlight": "^2.1.11",
+    "cli-truncate": "^6.0.0",
+    "figures": "^6.1.0",
+    "js-yaml": "^4.1.0",
+    "neo-blessed": "^0.2.0",
+    "string-width": "^8.2.1",
+    "strip-ansi": "^7.2.0",
+    "terminal-link": "^5.0.0",
+    "vscode-jsonrpc": "^8.2.0"
+  },
+  "license": "SEE LICENCE.md"
+}

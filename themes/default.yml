@@ -1,0 +1,31 @@
+name: default
+foreground: white
+background: black
+accent: cyan
+gutter: gray
+selection: blue
+statusbar:
+  foreground: black
+  background: cyan
+syntax:
+  keyword:        blue
+  builtin:        cyan
+  type:           cyan
+  literal:        yellow
+  number:         yellow
+  string:         green
+  regexp:         green
+  symbol:         green
+  comment:        gray
+  function:       magenta
+  parameter:      white
+  variable:       white
+  tag:            blue
+  tagName:        blue
+  attribute:      cyan
+  attr:           cyan
+  selectorId:     yellow
+  selectorClass:  yellow
+  bullet:         magenta
+  addition:       green
+  deletion:       red

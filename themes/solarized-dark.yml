@@ -1,0 +1,31 @@
+name: solarized-dark
+foreground: brightwhite
+background: black
+accent: brightcyan
+gutter: brightblack
+selection: brightblue
+statusbar:
+  foreground: black
+  background: brightyellow
+syntax:
+  keyword:        brightblue
+  builtin:        brightcyan
+  type:           brightcyan
+  literal:        brightred
+  number:         brightred
+  string:         green
+  regexp:         green
+  symbol:         green
+  comment:        brightblack
+  function:       brightmagenta
+  parameter:      brightwhite
+  variable:       brightwhite
+  tag:            brightblue
+  tagName:        brightblue
+  attribute:      brightcyan
+  attr:           brightcyan
+  selectorId:     brightyellow
+  selectorClass:  brightyellow
+  bullet:         brightmagenta
+  addition:       green
+  deletion:       brightred
