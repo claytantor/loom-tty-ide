@@ -62,8 +62,9 @@ export function renderLines({
   scroll,           // first visible line index
   viewHeight,       // lines visible in pane
   viewWidth,
+  showLineNumbers,  // runtime override; falls back to config when undefined
 }) {
-  const showNums = config?.editor?.showLineNumbers !== false;
+  const showNums = showLineNumbers ?? (config?.editor?.showLineNumbers !== false);
   const gutterW  = showNums ? String(lines.length).length + 3 : 0; // "N │ "
   const diagByLine = new Map();
   for (const d of (diagnostics || [])) diagByLine.set(d.line, d);

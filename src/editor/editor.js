@@ -5,6 +5,7 @@ import { createState, handleKey, getText, setText, applySearch, applySubstitute 
 import { renderLines } from './cursor-render.js';
 import { runFormat } from './lint.js';
 import { buildSplash } from '../ui/splash.js';
+import { loadKeybindings, asArray } from '../keybindings.js';
 
 export function createEditorPane({ parent, screen, theme, config, lsp, onDirtyChange, onModeChange, onFileChange, onCursorChange, onSave }) {
 
@@ -46,6 +47,12 @@ export function createEditorPane({ parent, screen, theme, config, lsp, onDirtyCh
   let hlTimer   = null;
   let diagnostics = [];
   let searchPromptActive = false;
+  // Runtime toggle for the line-number gutter. Initialised from config; user
+  // flips it with F2 / C-n / `:set nu!` so terminal text-selection picks up
+  // only the source code (not the gutter) for copy-paste.
+  let showLineNumbers = config?.editor?.showLineNumbers !== false;
+  const editKeys = loadKeybindings().edit ?? {};
+  const toggleNumKeys = new Set(asArray(editKeys.toggleLineNumbers));
 
   // ── render ───────────────────────────────────────────────────────────────────
   function render() {
@@ -78,6 +85,7 @@ export function createEditorPane({ parent, screen, theme, config, lsp, onDirtyCh
       scroll,
       viewHeight:    h,
       viewWidth:     innerWidth(),
+      showLineNumbers,
     });
 
     view.setContent(content);
@@ -194,6 +202,13 @@ export function createEditorPane({ parent, screen, theme, config, lsp, onDirtyCh
     const isScratch = filePath.startsWith('[');
     if (isScratch && (ch === '/' || ch === '?' || key?.full === '/' || key?.full === '?')) return;
     const keyFull = key?.full ?? ch ?? '';
+    // Intercept the line-number toggle before vim sees it. C-n in NORMAL would
+    // otherwise just move the cursor down and in INSERT trigger completion.
+    if (toggleNumKeys.has(keyFull) && vim.mode !== 'INSERT' && vim.mode !== 'COMMAND') {
+      showLineNumbers = !showLineNumbers;
+      render();
+      return;
+    }
     const prevMode = vim.mode;
     const prevDirty = vim.dirty;
 
@@ -229,6 +244,10 @@ export function createEditorPane({ parent, screen, theme, config, lsp, onDirtyCh
       case 'saveAndQuit': save(); closeFile(true); break;
       case 'openFile':    if (a.path) openFile(path.resolve(path.dirname(filePath || '.'), a.path)); break;
       case 'clearSearch': vim.lastSearch = ''; render(); break;
+      case 'setLineNumbers':
+        showLineNumbers = a.value === undefined ? !showLineNumbers : !!a.value;
+        render();
+        break;
       case 'substitute':  applySubstitute(vim, a.pattern, a.replacement, a.flags); render(); break;
       case 'exError':     /* TODO: show in status */ render(); break;
       case 'promptSearch': promptSearch(a.dir); break;

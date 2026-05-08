@@ -96,6 +96,11 @@ Esc or q to close.
     :q!                     Close, discarding changes
     :%s/old/new/g           Substitute
     :e <path>               Open another file
+    :set nu / :set nonu     Show / hide line numbers (or :set nu! to toggle)
+
+  Display:
+    F2  /  Ctrl-N           Toggle the line-number gutter (so terminal
+                            text-selection picks up only source code).
 
   Splits via slash commands:
     /split v   /split h     Split vertically / horizontally
@@ -155,8 +160,9 @@ Esc or q to close.
 
   loom never enables mouse capture, so your terminal's native selection
   works in every pane and overlay. In Gnome Terminal: shift-drag to select,
-  Shift-Ctrl-C to copy. Line numbers are off by default to keep selection
-  clean — toggle with editor.showLineNumbers in config.yml.
+  Shift-Ctrl-C to copy. Hit F2 (or Ctrl-N, or :set nu!) to hide the
+  line-number gutter so the selection picks up only the source code; the
+  default value comes from editor.showLineNumbers in config.yml.
 
   loom uses the alternate screen, so terminal scrollback is suspended while
   loom is running. Use the editor scroll keys above instead.

@@ -963,6 +963,9 @@ function parseExCommand(s, cmd) {
   if (cmd.startsWith('e ')) return { type: 'openFile', path: cmd.slice(2).trim() };
   if (cmd.startsWith('e! ')) return { type: 'openFile', path: cmd.slice(3).trim(), force: true };
   if (cmd === 'noh' || cmd === 'nohlsearch') return { type: 'clearSearch' };
+  if (cmd === 'set nu' || cmd === 'set number') return { type: 'setLineNumbers', value: true };
+  if (cmd === 'set nonu' || cmd === 'set nonumber') return { type: 'setLineNumbers', value: false };
+  if (cmd === 'set nu!' || cmd === 'set number!') return { type: 'setLineNumbers' };
   if (cmd.startsWith('%s')) {
     const m = cmd.match(/^%s\/((?:[^/\\]|\\.)*)\/([^/]*)\/([gimc]*)/);
     if (m) return { type: 'substitute', pattern: m[1], replacement: m[2], flags: m[3] };

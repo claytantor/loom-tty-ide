@@ -60,7 +60,8 @@ export const DEFAULT_KEYBINDINGS = Object.freeze({
   // ── edit mode (vim) — only meta keys are configurable; vim's own
   //    motions/operators are intrinsic to vim and not remapped here. ──
   edit: {
-    save: 'C-s',
+    save:               'C-s',
+    toggleLineNumbers:  ['f2', 'C-n'],
   },
 });
 

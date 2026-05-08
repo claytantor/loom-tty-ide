@@ -309,6 +309,26 @@ test(':q returns quit action', () => {
   assert.equal(action?.type, 'quit');
 });
 
+test(':set nu and :set nonu return setLineNumbers actions', () => {
+  for (const [cmd, expected] of [['set nu', true], ['set nonu', false], ['set number', true], ['set nonumber', false]]) {
+    const s = createState('');
+    press(s, ':');
+    pressStr(s, cmd);
+    const action = handleKey(s, 'enter', '');
+    assert.equal(action?.type, 'setLineNumbers');
+    assert.equal(action?.value, expected);
+  }
+});
+
+test(':set nu! returns toggle (no value)', () => {
+  const s = createState('');
+  press(s, ':');
+  pressStr(s, 'set nu!');
+  const action = handleKey(s, 'enter', '');
+  assert.equal(action?.type, 'setLineNumbers');
+  assert.equal(action?.value, undefined);
+});
+
 // ── f/t find-char ─────────────────────────────────────────────────────────────
 
 test('f moves to char on line', () => {
