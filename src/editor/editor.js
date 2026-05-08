@@ -4,7 +4,7 @@ import path from 'node:path';
 import { createState, handleKey, getText, setText, applySearch, applySubstitute } from './vim.js';
 import { renderLines } from './cursor-render.js';
 import { runFormat } from './lint.js';
-import { buildSplash } from '../ui/splash.js';
+import { buildSplash, SPLASH_FRAME_MS } from '../ui/splash.js';
 import { loadKeybindings, asArray } from '../keybindings.js';
 
 export function createEditorPane({ parent, screen, theme, config, lsp, onDirtyChange, onModeChange, onFileChange, onCursorChange, onSave }) {
@@ -54,14 +54,36 @@ export function createEditorPane({ parent, screen, theme, config, lsp, onDirtyCh
   const editKeys = loadKeybindings().edit ?? {};
   const toggleNumKeys = new Set(asArray(editKeys.toggleLineNumbers));
 
+  // Splash sparkle animation. We tick a frame counter while the splash is
+  // showing (filePath === null) and re-render so the sparkles twinkle.
+  let splashFrame = 0;
+  let splashTimer = null;
+  function startSplashAnim() {
+    if (splashTimer) return;
+    splashTimer = setInterval(() => {
+      if (filePath) { stopSplashAnim(); return; }
+      splashFrame = (splashFrame + 1) | 0;
+      view.setContent(buildSplash(innerWidth(), innerHeight(), splashFrame));
+      screen.render();
+    }, SPLASH_FRAME_MS);
+    if (typeof splashTimer.unref === 'function') splashTimer.unref();
+  }
+  function stopSplashAnim() {
+    if (!splashTimer) return;
+    clearInterval(splashTimer);
+    splashTimer = null;
+  }
+
   // ── render ───────────────────────────────────────────────────────────────────
   function render() {
     if (!filePath) {
-      view.setContent(buildSplash(innerWidth(), innerHeight()));
+      view.setContent(buildSplash(innerWidth(), innerHeight(), splashFrame));
       cmdBar.hide();
       screen.render();
+      startSplashAnim();
       return;
     }
+    stopSplashAnim();
 
     // Keep scroll so cursor is always visible.
     const h  = innerHeight();
@@ -319,6 +341,7 @@ export function createEditorPane({ parent, screen, theme, config, lsp, onDirtyCh
     screen.render();
   }
   function dispose() {
+    stopSplashAnim();
     if (filePath && lsp) lsp.didClose(filePath);
     wrap.detach();
   }
