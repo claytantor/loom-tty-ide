@@ -16,7 +16,7 @@ const HINTS = [
   ['/',           'Open the slash command palette'],
   ['/filetree',   'Browse project files'],
   ['/edit <path>', 'Open a file for editing'],
-  ['/find <regex>', 'Find in files'],
+  ['/find [glob] <regex>', 'Find in files (e.g. /find *.py def)'],
   ['/ai <prompt>', 'Ask the AI provider'],
   ['/cheatsheet', 'Full key tutorial (or press F1)'],
   ['/quit',       'Quit (or Ctrl-Q)'],

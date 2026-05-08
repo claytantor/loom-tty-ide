@@ -92,7 +92,7 @@ export async function startApp({ cwd, config, theme }) {
   });
 
   const findResults = createFindResults({
-    screen, theme,
+    screen, theme, cwd,
     keybindings: keybindings.find,
     onOpen: ({ file, line }) => { buffers.openFileAt(file, line); },
     onClose: () => { if (mode === 'find') setMode(buffers.hasFile() ? 'edit' : 'none'); },
@@ -223,12 +223,18 @@ export async function startApp({ cwd, config, theme }) {
     });
     registry.register({
       name: 'find',
-      argHint: '<pattern>',
-      description: 'Find a regex across files',
+      argHint: '[glob] <pattern>',
+      description: 'Find a regex across files (e.g. `/find */*.py def` or `/find todo`)',
       run: async (args) => {
-        const pattern = args && args.trim();
-        if (!pattern) return;
-        const results = await findInFiles({ root: cwd, pattern, ignore: config.ignore });
+        const trimmed = (args || '').trim();
+        if (!trimmed) return;
+        // Multi-token form `/find <glob> <pattern>` — first whitespace-delimited
+        // token is the glob (e.g. `*.py`, `foo.py`, `src/**/*.ts`); the rest is
+        // the regex. Single-token form is just the regex (no glob filter).
+        let glob = null, pattern = trimmed;
+        const m = trimmed.match(/^(\S+)\s+(.+)$/);
+        if (m) { glob = m[1]; pattern = m[2]; }
+        const results = await findInFiles({ root: cwd, pattern, glob, ignore: config.ignore });
         findResults.show(results);
         setMode('find');
       },

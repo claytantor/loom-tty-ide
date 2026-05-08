@@ -33,7 +33,10 @@ Esc or q to close.
 
   /filetree                Browse files (enters filetree mode).
   /edit [path]             Open a file (enters edit / vim mode).
-  /find <regex>            Search across files (enters find mode).
+  /find [glob] <regex>     Search across files; glob filters which files
+                           are searched (e.g. \`*.py\`, \`foo.py\`,
+                           \`src/**/*.ts\`). Without a glob, all files
+                           outside \`config.ignore\` are searched.
   /ai [prompt]             Stream an AI response into a scratch buffer.
   /save                    Save the active file.
   /format                  Run prettier/ruff on the active file.
@@ -129,7 +132,17 @@ Esc or q to close.
 
 ─── Find mode (results overlay) ──────────────────────────────────────────────
 
-  Trigger:                  /find <regex>
+  Trigger:                  /find [glob] <regex>
+
+    /find def                  search every file for /def/
+    /find *.py def             search only Python files
+    /find foo.py hello         search only files literally named foo.py
+    /find src/**/*.ts ^export  search every .ts in src/ at any depth
+
+  When two whitespace-separated tokens are given, the first is the glob
+  filter and the second onward is the regex. With one token, no glob
+  filter is applied.
+
   j/k or Up/Down            Move through results.
   Enter                     Jump to that file at that line; the line is
                             briefly highlighted so you can see where you
