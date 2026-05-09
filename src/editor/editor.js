@@ -10,13 +10,16 @@ import { loadKeybindings, asArray } from '../keybindings.js';
 export function createEditorPane({ parent, screen, theme, config, lsp, onDirtyChange, onModeChange, onFileChange, onCursorChange, onSave }) {
 
   // ── layout ──────────────────────────────────────────────────────────────────
+  // No border on the editor pane: the box-drawing characters would get
+  // picked up by terminal shift-drag selection. Keeping the work area
+  // border-free is what makes Gnome Terminal copy-paste land clean text in
+  // the clipboard. Active-pane indication lives in the status bar (active
+  // file path + cursor) instead of a coloured frame.
   const wrap = blessed.box({
     parent,
     top: 0, left: 0, right: 0, bottom: 0,
     style: { fg: theme.foreground, bg: theme.background },
-    border: { type: 'line' },
   });
-  wrap.style.border = { fg: theme.gutter };
 
   // Single view for both NORMAL and INSERT — no textarea.
   const view = blessed.box({
@@ -144,11 +147,11 @@ export function createEditorPane({ parent, screen, theme, config, lsp, onDirtyCh
   }
 
   function innerHeight() {
-    // Subtract 1 for border on each side, command bar when active.
+    // Reserve a row for the command bar when it's showing.
     const extra = vim.mode === 'COMMAND' ? 1 : 0;
     return Math.max(1, (view.height || 24) - extra);
   }
-  function innerWidth() { return Math.max(20, (view.width || 80) - 2); }
+  function innerWidth() { return Math.max(20, (view.width || 80) - 1); }
 
   // ── file operations ───────────────────────────────────────────────────────
   function openFile(fp) {
@@ -336,10 +339,10 @@ export function createEditorPane({ parent, screen, theme, config, lsp, onDirtyCh
 
   // ── focus / active ────────────────────────────────────────────────────────
   function focus() { view.focus(); }
-  function setActive(active) {
-    wrap.style.border.fg = active ? theme.accent : theme.gutter;
-    screen.render();
-  }
+  // No-op: the editor pane has no border to colour. Active-pane info lives
+  // in the status bar (file path / cursor / mode). Kept for API stability —
+  // buffers.js calls it on every layout change.
+  function setActive(_active) {}
   function dispose() {
     stopSplashAnim();
     if (filePath && lsp) lsp.didClose(filePath);
