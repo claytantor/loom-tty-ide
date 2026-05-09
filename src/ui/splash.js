@@ -34,14 +34,13 @@ const LOGO = [
 const LOGO_W = Math.max(...LOGO.map((l) => l.length));
 const LOGO_H = LOGO.length;
 
-const TAGLINE = 'TTY IDE for working alongside an AI coding agent';
+const TAGLINE = 'A neon TTY IDE for working over remote shells';
 
 const HINTS = [
   ['/',                    'Open the slash command palette'],
   ['/filetree',            'Browse project files'],
   ['/edit <path>',         'Open a file for editing'],
   ['/find [glob] <regex>', 'Find in files (e.g. /find *.py def)'],
-  ['/ai <prompt>',         'Ask the AI provider'],
   ['/cheatsheet',          'Full key tutorial (or press F1)'],
   ['/quit',                'Quit (or Ctrl-Q)'],
 ];

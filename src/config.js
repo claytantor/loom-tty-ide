@@ -3,18 +3,10 @@ import path from 'node:path';
 import os from 'node:os';
 import yaml from 'js-yaml';
 
-export const VALID_PROVIDERS = ['anthropic', 'openai', 'ollama'];
-
 export const DEFAULT_CONFIG = Object.freeze({
   theme: 'default',
   editor: { tabSize: 2, showLineNumbers: false },
   ignore: ['node_modules', '.git', 'dist'],
-  ai: {
-    provider: 'anthropic',
-    anthropic: { model: 'claude-sonnet-4-20250514', apiKeyEnv: 'ANTHROPIC_API_KEY' },
-    openai: { model: 'gpt-4o-mini', apiKeyEnv: 'OPENAI_API_KEY' },
-    ollama: { model: 'llama3.1', baseUrl: 'http://localhost:11434' },
-  },
 });
 
 export function loomHome() {
@@ -62,11 +54,6 @@ export function parseConfig(text) {
 }
 
 function validate(cfg) {
-  if (!VALID_PROVIDERS.includes(cfg.ai?.provider)) {
-    throw new ConfigError(
-      `ai.provider must be one of ${VALID_PROVIDERS.join(', ')} (got ${cfg.ai?.provider})`,
-    );
-  }
   if (!Array.isArray(cfg.ignore)) {
     throw new ConfigError('ignore must be a list of strings');
   }
@@ -83,10 +70,4 @@ export function loadConfig({ path: filePath = configPath() } = {}) {
     throw new ConfigError(`could not read ${filePath}: ${err.message}`, { cause: err });
   }
   return parseConfig(text);
-}
-
-export function resolveApiKey(cfg, provider) {
-  const envName = cfg.ai?.[provider]?.apiKeyEnv;
-  if (!envName) return null;
-  return process.env[envName] || null;
 }

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { DEFAULT_CONFIG, ConfigError, deepMerge, loadConfig, parseConfig, resolveApiKey } from '../src/config.js';
+import { DEFAULT_CONFIG, ConfigError, deepMerge, loadConfig, parseConfig } from '../src/config.js';
 
 function tmpFile(name, body) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'loom-cfg-'));
@@ -22,15 +22,15 @@ test('deepMerge merges nested mappings without mutating inputs', () => {
 test('loadConfig returns defaults when file is missing', () => {
   const cfg = loadConfig({ path: '/tmp/loom-does-not-exist-xyz.yml' });
   assert.equal(cfg.theme, DEFAULT_CONFIG.theme);
-  assert.equal(cfg.ai.provider, 'anthropic');
+  assert.deepEqual(cfg.ignore, DEFAULT_CONFIG.ignore);
 });
 
 test('parseConfig rejects bad YAML with a friendly error', () => {
   assert.throws(() => parseConfig('::: not yaml :::\n  - [unbalanced'), ConfigError);
 });
 
-test('parseConfig rejects unknown provider', () => {
-  assert.throws(() => parseConfig('ai:\n  provider: bogus\n'), /ai.provider/);
+test('parseConfig rejects non-array ignore', () => {
+  assert.throws(() => parseConfig('ignore: not-a-list\n'), /ignore must be a list/);
 });
 
 test('parseConfig accepts a valid override and overrides defaults', () => {
@@ -44,11 +44,4 @@ test('loadConfig reads a real file', () => {
   const p = tmpFile('config.yml', 'theme: high-contrast\n');
   const cfg = loadConfig({ path: p });
   assert.equal(cfg.theme, 'high-contrast');
-});
-
-test('resolveApiKey reads the configured env var', () => {
-  process.env.LOOM_TEST_KEY = 'sekret';
-  const cfg = parseConfig('ai:\n  provider: anthropic\n  anthropic:\n    apiKeyEnv: LOOM_TEST_KEY\n');
-  assert.equal(resolveApiKey(cfg, 'anthropic'), 'sekret');
-  delete process.env.LOOM_TEST_KEY;
 });

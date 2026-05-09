@@ -41,7 +41,6 @@ export function createStatusBar({ screen, theme, cwd }) {
     mode: 'NORMAL',
     extraMode: 'none',
     dirty: false,
-    aiStreaming: false,
     diagnostics: 0,
     cursor: null,
     extra: '',
@@ -54,7 +53,6 @@ export function createStatusBar({ screen, theme, cwd }) {
           : homeRelative(state.file))
       : '(no file)';
     const dirty = state.dirty ? '●' : ' ';
-    const ai = state.aiStreaming ? ' …streaming' : '';
     const diag = state.diagnostics ? ` ⚠ ${state.diagnostics}` : '';
     const extra = state.extra ? ` ${state.extra}` : '';
     const modeLabel = state.extraMode === 'edit'
@@ -65,7 +63,7 @@ export function createStatusBar({ screen, theme, cwd }) {
       : '';
 
     const left  = ` loom ${homeRelative(state.cwd)}  [ ${modeLabel} ] `;
-    const right = ` ${dirty} ${fileLabel}${diag}${ai}${cursorStr}${extra} `;
+    const right = ` ${dirty} ${fileLabel}${diag}${cursorStr}${extra} `;
 
     const cols = screen.width || 80;
     const leftW  = stringWidth(left);
@@ -77,10 +75,10 @@ export function createStatusBar({ screen, theme, cwd }) {
     // If both halves don't fit, shrink the file path on the right side first.
     if (leftW + rightW > cols) {
       // Truncate fileLabel preserving prefixes/suffixes.
-      const others = ` ${dirty} ${diag}${ai}${cursorStr}${extra} `;
+      const others = ` ${dirty} ${diag}${cursorStr}${extra} `;
       const budget = Math.max(0, cols - leftW - stringWidth(others) - 1);
       const truncated = cliTruncate(fileLabel, Math.max(3, budget), { position: 'middle' });
-      rightFinal = ` ${dirty} ${truncated}${diag}${ai}${cursorStr}${extra} `;
+      rightFinal = ` ${dirty} ${truncated}${diag}${cursorStr}${extra} `;
     }
 
     const finalLeftW  = stringWidth(leftFinal);

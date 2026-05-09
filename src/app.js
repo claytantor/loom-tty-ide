@@ -3,11 +3,9 @@ import path from 'node:path';
 import { createStatusBar } from './ui/statusbar.js';
 import { createFileTree } from './overlay/file-tree.js';
 import { createFindResults } from './overlay/find-results.js';
-import { createAiPrompt } from './overlay/ai-prompt.js';
 import { createCheatSheet } from './overlay/cheat-sheet.js';
 import { createBufferManager } from './editor/buffers.js';
 import { findInFiles } from './search/find-in-files.js';
-import { complete as aiComplete } from './ai/index.js';
 import { GitStatus } from './git/status.js';
 import { blame as gitBlame } from './git/blame.js';
 import { diff as gitDiff } from './git/diff.js';
@@ -47,7 +45,6 @@ export async function startApp({ cwd, config, theme }) {
   // 'filetree'  — file tree overlay shown
   // 'find'      — find-results overlay shown
   // 'cheatsheet' — cheat-sheet overlay shown
-  // 'ai'        — AI prompt overlay shown
   // 'palette'   — palette is the active foreground
   let mode = 'none';
   function setMode(next) {
@@ -96,22 +93,6 @@ export async function startApp({ cwd, config, theme }) {
     keybindings: keybindings.find,
     onOpen: ({ file, line }) => { buffers.openFileAt(file, line); },
     onClose: () => { if (mode === 'find') setMode(buffers.hasFile() ? 'edit' : 'none'); },
-  });
-
-  const aiPrompt = createAiPrompt({
-    screen, theme,
-    onSubmit: async (prompt) => {
-      const buf = buffers.openScratch('ai-response.md');
-      statusbar.update({ aiStreaming: true });
-      try {
-        await aiComplete({ config, prompt, onChunk: (chunk) => buf.appendStreaming(chunk) });
-      } catch (err) {
-        buf.appendStreaming(`\n\n[error: ${err.message}]\n`);
-      } finally {
-        statusbar.update({ aiStreaming: false });
-        if (mode === 'ai') setMode('edit');
-      }
-    },
   });
 
   const cheatSheet = createCheatSheet({
@@ -237,19 +218,6 @@ export async function startApp({ cwd, config, theme }) {
         const results = await findInFiles({ root: cwd, pattern, glob, ignore: config.ignore });
         findResults.show(results);
         setMode('find');
-      },
-    });
-    registry.register({
-      name: 'ai',
-      argHint: '[prompt]',
-      description: 'Ask the AI provider; response streams into a scratch buffer',
-      run: (args) => {
-        if (args && args.trim()) {
-          aiPrompt.runWith(args.trim());
-        } else {
-          aiPrompt.toggle();
-          setMode('ai');
-        }
       },
     });
     registry.register({

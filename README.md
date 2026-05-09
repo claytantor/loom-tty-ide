@@ -5,18 +5,18 @@
 <h1 align="center">Loom</h1>
 
 <p align="center">
-  A neon-bright TTY IDE built to live next to an AI coding agent —<br/>
-  fast over SSH, friendly with native copy-paste, configurable to the keystroke.
+  A neon-bright TTY IDE for working over remote shells —<br/>
+  fast, friendly with native copy-paste, configurable to the keystroke.
 </p>
 
 <p align="center">
   <a href="LICENCE.md"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-22e8ff?style=flat-square"></a>
   <img alt="Node 18+" src="https://img.shields.io/badge/node-%3E%3D18-1a90e0?style=flat-square&logo=node.js&logoColor=cffaff">
   <img alt="ESM" src="https://img.shields.io/badge/ESM-only-1a90e0?style=flat-square">
-  <img alt="Tests" src="https://img.shields.io/badge/tests-152%20passing-22e8ff?style=flat-square">
+  <img alt="Tests" src="https://img.shields.io/badge/tests-143%20passing-22e8ff?style=flat-square">
   <img alt="Built with neo-blessed" src="https://img.shields.io/badge/built%20with-neo--blessed-1a90e0?style=flat-square">
-  <img alt="Anthropic streaming" src="https://img.shields.io/badge/AI-Anthropic%20streaming-cffaff?style=flat-square&logo=anthropic">
   <img alt="Mouse-free" src="https://img.shields.io/badge/mouse-disabled%20on%20purpose-22e8ff?style=flat-square">
+  <img alt="Truecolor" src="https://img.shields.io/badge/truecolor-yes-cffaff?style=flat-square">
   <a href="https://github.com/claytantor/loom-tty-ide/issues"><img alt="PRs welcome" src="https://img.shields.io/badge/PRs-welcome-cffaff?style=flat-square"></a>
 </p>
 
@@ -30,17 +30,17 @@ terminal's own copy-paste, scroll, and clipboard intact, then layers a
 modern IDE on top:
 
 - **Slash-command paradigm.** No global key chords to memorise. Hit `/` and
-  pick a capability; that capability becomes the active mode and gets its own
-  keybindings, all overridable in `~/.loom/keybindings.yml`.
-- **Streaming AI as a real pane.** Anthropic is wired in over native `fetch`
-  + SSE — no SDKs. OpenAI and Ollama ship as stubs behind the same provider
-  interface so adding a real backend is a 30-line file.
+  pick a capability; that capability becomes the active mode and gets its
+  own keybindings, all overridable in `~/.loom/keybindings.yml`.
 - **Full vim editor.** Modes, motions, operators, marks, ex commands,
-  search/substitute, undo/redo. Save with `:w` or `Ctrl-S`; `:wq` returns to
-  the splash without quitting loom.
+  search/substitute, undo/redo. Save with `:w` or `Ctrl-S`; `:wq` returns
+  to the splash without quitting loom.
 - **First-class git, LSP, ripgrep.** Status flags decorate the file tree,
-  blame and diff are slash commands, TypeScript and Python language servers
-  spawn automatically when their binaries are on `$PATH`.
+  blame and diff are slash commands, TypeScript and Python language
+  servers spawn automatically when their binaries are on `$PATH`.
+- **Copy-paste actually works.** No mouse capture, no border characters
+  inside the work area — shift-drag in Gnome Terminal / iTerm2 / kitty /
+  Alacritty / WezTerm lands clean text in your clipboard.
 - **Zero ceremony to install.** A single `curl | bash` clones, installs,
   seeds your config and themes, and symlinks `loom` onto your `$PATH`.
 
@@ -49,9 +49,6 @@ modern IDE on top:
 ```bash
 # Install (clones to ~/.loom/app, symlinks `loom` onto $PATH)
 curl -fsSL https://raw.githubusercontent.com/claytantor/loom-tty-ide/main/install.sh | bash
-
-# Set your API key (Anthropic is the only provider that ships fully wired)
-export ANTHROPIC_API_KEY=sk-ant-...
 
 # Open a project
 loom .
@@ -80,13 +77,12 @@ truecolor with sparkles that twinkle through an 8-frame cycle:
              ░ ░   ░ ░ ░ ▒  ░ ░ ░ ▒  ░      ░
                ░  ░    ░ ░      ░ ░         ░
 
-       TTY IDE for working alongside an AI coding agent
+           A neon TTY IDE for working over remote shells
 
          /                      Open the slash command palette
          /filetree              Browse project files
          /edit <path>           Open a file for editing
          /find [glob] <regex>   Find in files (e.g. /find *.py def)
-         /ai <prompt>           Ask the AI provider
          /cheatsheet            Full key tutorial (or press F1)
          /quit                  Quit (or Ctrl-Q)
 ```
@@ -151,7 +147,6 @@ to navigate, `Enter` to run, `Esc` to dismiss.
 | `/filetree` | Browse the project tree (enters filetree mode) |
 | `/edit [path]` | Open a file for editing (enters edit mode — full vim) |
 | `/find [glob] <regex>` | Search files. `glob` is optional, e.g. `*.py`, `foo.py`, `src/**/*.ts` |
-| `/ai [prompt]` | Stream an AI response into a scratch buffer |
 | `/save` | Save the active file |
 | `/format` | Run `prettier`/`ruff` on the active file |
 | `/blame` | `git blame` for the active file |
@@ -225,13 +220,19 @@ Loom never enables mouse capture. Gnome Terminal's native selection
 falling through to a tmux-style copy mode. iTerm2, kitty, Alacritty, and
 WezTerm all behave the same way.
 
-A few practical knobs:
+Two design choices keep selection text clean:
+
+- **No border around the editor work area.** Box-drawing characters (`┌─┐`,
+  `│`, `└─┘`) would otherwise get included in the clipboard when you
+  shift-drag.
+- **Line-number gutter is toggleable.** Hit `F2` (or `Ctrl-N`, or type
+  `:set nu!`) so a copy-paste selection picks up only the source code.
+
+A few more practical knobs:
 
 - Loom uses the alternate screen, so scrollback above the IDE isn't
   accessible while it's running. Scroll inside the editor pane (vim keys)
   or the find-results overlay instead.
-- Hit `F2` (or `Ctrl-N`, or type `:set nu!`) to hide the line-number
-  gutter so a copy-paste selection picks up only the source code.
 
 ## Configuration
 
@@ -246,21 +247,7 @@ ignore:
   - node_modules
   - .git
   - dist
-ai:
-  provider: anthropic       # anthropic | openai | ollama
-  anthropic:
-    model: claude-sonnet-4-20250514
-    apiKeyEnv: ANTHROPIC_API_KEY
-  openai:
-    model: gpt-4o-mini
-    apiKeyEnv: OPENAI_API_KEY
-  ollama:
-    model: llama3.1
-    baseUrl: http://localhost:11434
 ```
-
-API keys are read from the env var named in `apiKeyEnv` — never stored in
-the config file.
 
 `LOOM_HOME` overrides `~/.loom/` if you need a different location (useful
 for testing or for sandboxing into project-local config).
@@ -357,7 +344,6 @@ loom/
 │   │   ├── file-tree.js           modal file tree (vim nav, fuzzy filter)
 │   │   ├── tree-model.js          pure tree state (ignore, expand, fuzzy)
 │   │   ├── find-results.js        find-in-files results overlay
-│   │   ├── ai-prompt.js           AI prompt overlay
 │   │   ├── cheat-sheet.js         tutorial overlay
 │   │   └── modal-helpers.js       activate/deactivate, focus, grab fix
 │   ├── editor/
@@ -369,12 +355,6 @@ loom/
 │   │   ├── highlight.js           cli-highlight + per-scope colour mapping
 │   │   └── lint.js                prettier / ruff dispatch
 │   ├── search/find-in-files.js    ripgrep + JS-walker fallback + glob filter
-│   ├── ai/
-│   │   ├── index.js               provider router
-│   │   ├── sse.js                 server-sent-events parser
-│   │   ├── anthropic.js           streaming via fetch
-│   │   ├── openai.js              stub
-│   │   └── ollama.js              stub
 │   ├── git/
 │   │   ├── status.js              porcelain=v2 parser + cache
 │   │   ├── blame.js               porcelain blame parser
@@ -385,7 +365,7 @@ loom/
 │   │   └── framing.js             Content-Length framer
 │   └── ui/
 │       ├── splash.js              animated neon LOOM splash
-│       └── statusbar.js           file path · mode · cursor · streaming
+│       └── statusbar.js           file path · mode · cursor
 └── tests/                         node:test, mirrors src/ for non-TUI modules
 ```
 
@@ -405,11 +385,10 @@ loom/
 - **ripgrep** preferred for find-in-files; pure-JS fallback when `rg` is
   absent. Globs (`*.py`, `src/**/*.ts`, `foo.py`) are passed through to rg
   natively, or compiled to regex for the JS walker.
-- **fetch-only** AI clients (no SDKs). Keeps the dependency footprint tiny.
 - **Pure modules** for everything testable. `tree-model.js`,
-  `split-tree.js`, the SSE parser, the LSP framer, the git-porcelain
-  parsers, the vim state machine, and the overlay row-formatter all run
-  without blessed and have direct unit tests.
+  `split-tree.js`, the LSP framer, the git-porcelain parsers, the vim
+  state machine, and the overlay row-formatter all run without blessed
+  and have direct unit tests.
 
 ## Development
 
@@ -430,7 +409,6 @@ that anything worth testing gets pulled into a pure module first.
 | add a slash command | `src/app.js` (search for `registry.register`) |
 | add an editor feature | `src/editor/editor.js` |
 | add a vim binding | `src/editor/vim.js` (see `tests/vim.test.js` for the patterns) |
-| add an AI provider | `src/ai/<name>.js` (export `complete({config, prompt, onChunk})`), then add it to the router in `src/ai/index.js` |
 | add an overlay | `src/overlay/` — `find-results.js` is a small, complete template |
 | extend the splash / animation | `src/ui/splash.js` |
 
@@ -439,9 +417,8 @@ that anything worth testing gets pulled into a pure module first.
 - LSP go-to-definition, hover, completion popup
 - Tree-sitter highlighting for languages cli-highlight doesn't cover well
 - Persistent session restore (open buffers, splits, last cursor)
-- A second AI mode that edits files in place with diff preview, not just
-  a scratch buffer
-- Status-bar streaming token counter when an AI call is in flight
+- A non-polluting visual separator between split panes (so copy-paste
+  stays clean even with multiple splits open)
 
 ## Contributing
 

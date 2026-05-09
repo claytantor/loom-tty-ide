@@ -37,7 +37,6 @@ Esc or q to close.
                            are searched (e.g. \`*.py\`, \`foo.py\`,
                            \`src/**/*.ts\`). Without a glob, all files
                            outside \`config.ignore\` are searched.
-  /ai [prompt]             Stream an AI response into a scratch buffer.
   /save                    Save the active file.
   /format                  Run prettier/ruff on the active file.
   /blame                   Git blame the active file in a scratch buffer.
@@ -153,16 +152,6 @@ Esc or q to close.
   walker that respects the 'ignore:' list in your config.
 
 
-─── AI ────────────────────────────────────────────────────────────────────────
-
-  /ai <prompt>              Send a prompt directly; response streams into a
-                            scratch buffer.
-  /ai                       Open the prompt overlay (type, Enter to send).
-
-  Provider is set in ~/.loom/config.yml under 'ai.provider'. Anthropic is
-  fully wired (streams via SSE); openai and ollama are stubs.
-
-
 ─── Git ──────────────────────────────────────────────────────────────────────
 
   In the file tree, modified/added/deleted/untracked files show a flag like
@@ -184,7 +173,7 @@ Esc or q to close.
 ─── Config & key bindings ────────────────────────────────────────────────────
 
   ~/.loom/config.yml             Main config. Theme, editor settings,
-                                 ignore list, AI provider.
+                                 ignore list.
   ~/.loom/themes/<name>.yml      User themes. Shadow bundled themes with the
                                  same name.
   ~/.loom/keybindings.yml        Per-mode key overrides. Only the keys you
@@ -199,9 +188,6 @@ Esc or q to close.
         up:   up
       global:
         palette: C-space      # remap the palette trigger
-
-  API keys are read from the env var named in 'apiKeyEnv' — never stored in
-  the config file.
 
 
 Press Esc or q to close this cheat sheet.
